@@ -1,0 +1,31 @@
+{
+    "name": "lumen-apidoc",
+    "description": "Generating API documents based on lumen",
+    "keywords": ["lumen", "apidoc"],
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "denny",
+            "email": "917942168@qq.com"
+        }
+    ],
+    "require": {
+        "php": ">=7.0.0",
+        "erusev/parsedown": "^1.7"
+    },
+    "autoload": {
+        "psr-4": {
+            "Denny071\\LaravelApidoc\\": "src"
+        }
+    },
+    "extra" : {
+        "laravel" : {
+            "providers" : [
+                "Denny071\\LaravelApidoc\\ApidocServiceProvider"
+            ]
+        }
+    },
+
+    "prefer-stable": true
+}
