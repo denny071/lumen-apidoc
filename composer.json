@@ -1,5 +1,5 @@
 {
-    "name": "lumen-apidoc",
+    "name": "denny071/lumen-apidoc",
     "description": "Generating API documents based on lumen",
     "keywords": ["lumen", "apidoc"],
     "type": "library",
