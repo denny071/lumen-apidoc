@@ -4,16 +4,6 @@ namespace Denny071\LaravelApidoc;
 
 use Denny071\LaravelApidoc\Exception\ConfigException;
 
-use Denny071\LaravelApidoc\Models\{
-    Module,
-    MethodGet,
-    MethodPost,
-    ParamValue,
-    ReturnValue,
-    Message,
-    InputData
-};
-
 /**
  * 文档数据
  *
@@ -78,11 +68,25 @@ class DocumentData
      */
     static public $messagePath = "";
 
-      /**
+    /**
      *
      * @var string 资源地址
      */
     static public $mockDir = "";
+
+    /**
+     *
+     * @var array 关键字方法
+     */
+    static public $keyMethod = [
+        'V' => 'Module',
+        'G' => 'MethodGet',
+        'P' => 'MethodPost',
+        'A' => 'ParamValue',
+        'R' => 'ReturnValue',
+        'M' => 'Message',
+        'I' => 'InputData',
+    ];
 
 
     /**
@@ -154,34 +158,17 @@ class DocumentData
         if (!preg_match_all('/\/\/@(.*?)<br/', $subject, $content)) {
             return;
         }
+
         //获得单个路由路由新
         foreach ($content[1] as $route) {
-
-            switch ($route[0]) {
-                case "V":
-                    Module::dealData(explode("-", substr($route, 1)));
-                    break;
-                case "G":
-                    self::$methodMode = "GET";
-                    MethodGet::dealData(explode("-", substr($route, 1)));
-                    break;
-                case "P":
-                    self::$methodMode = "POST";
-                    MethodPost::dealData(explode("-", substr($route, 1)));
-                    break;
-                case "A":
-                    ParamValue::dealData(explode("-", substr($route, 1)));
-                    break;
-                case "R":
-                    ReturnValue::dealData(explode(",", substr($route, 2, strlen($route) - 3)));
-                    break;
-                case "M":
-                    Message::dealData(explode(",", substr($route, 2, strlen($route) - 3)));
-                    break;
-                case "I":
-                    InputData::dealData(explode(",", substr($route, 2, strlen($route) - 3)));
-                    break;
+            // 判断是否为列表
+            if(in_array($route[0], ["V","G","P"])){
+                self::$methodMode = $route[0]=="G"?"GET":"POST";
+                $param = explode("-", substr($route, 1));
+            }else {
+                $param = explode(",", substr($route, 2, strlen($route) - 3));
             }
+            ("\\Denny071\\LaravelApidoc\\Models\\".self::$keyMethod[$route[0]])::dealData($param);
         }
     }
 }

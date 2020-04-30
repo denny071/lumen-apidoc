@@ -26,7 +26,6 @@ class ParamValue
      */
     public static function dealData(array $dataList)
     {
-
         //获得参数列表的参数信息
         foreach ($dataList as $paramInfo) {
             $data = [];
@@ -41,7 +40,7 @@ class ParamValue
                 //参数描述
                 $data['describe'] = $param[2];
                 //设置参数数据
-                DocumentData::$documentData[DocumentData::$moduleNameKey]['method'][DocumentData::$moduleName]['params'][] = $data;
+                DocumentData::$documentData[DocumentData::$moduleNameKey]['method'][DocumentData::$methodName]['params'][] = $data;
             }
         }
 

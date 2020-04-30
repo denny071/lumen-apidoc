@@ -33,13 +33,14 @@ class Document
                 $documentData[$key] = $data;
             }
         }
+
         return  view("apidoc::document", [
             "title" =>  config('apidoc.cache.title',"API文档")."-V".$version,
             "dataList" => $documentData,
             "version" => $version,
             "model" => $_REQUEST['model']??""
         ]);
- 
+
     }
 
 

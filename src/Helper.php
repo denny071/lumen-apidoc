@@ -59,9 +59,7 @@ class Helper{
      */
     public static function genHttpUrl($version, $moduleName, $methodName)
     {
-        $url =  env("APP_URL")."/api/";
-        $url .= env("API_URI_PREFIX", "");
-        $url .= "v" . $version . "/";
+        $url =  env("APP_URL")."/". env("API_PREFIX",'api')."/";
         $url .= $moduleName . "/";
         $url .= str_replace("_", "/", $methodName);
 
