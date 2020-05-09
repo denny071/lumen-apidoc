@@ -20,8 +20,8 @@ class Mock
         if(!DocumentData::$mockDir){
             return "";
         }
-        $outputJsonFilePath = DocumentData::$mockDir . DIRECTORY_SEPARATOR . "V" .
-                DocumentData::$version . DIRECTORY_SEPARATOR . DocumentData::$moduleName."_".DocumentData::$methodName . ".json";
+        $outputJsonFilePath = DocumentData::$mockDir . DIRECTORY_SEPARATOR . "V" .DocumentData::$version
+                              . DIRECTORY_SEPARATOR . DocumentData::$methodName . ".json";
         $content = "";
         if (file_exists($outputJsonFilePath)) {
             $content = file_get_contents($outputJsonFilePath);

@@ -58,19 +58,31 @@ class DocumentData
 
     /**
      *
-     * @var string 资源地址
+     * @var string 路由地址
      */
-    static public $resourcePath = "";
+    static public $routerPath = "";
 
-      /**
+    /**
      *
-     * @var string 资源地址
+     * @var string 消息文件地址
      */
     static public $messagePath = "";
 
     /**
      *
-     * @var string 资源地址
+     * @var string 错误消息文件地址
+     */
+    static public $errorPath = "";
+
+    /**
+     *
+     * @var string 输入验证文件地址
+     */
+    static public $validatePath = "";
+
+      /**
+     *
+     * @var string mock目录地址
      */
     static public $mockDir = "";
 
@@ -80,8 +92,10 @@ class DocumentData
      */
     static public $keyMethod = [
         'V' => 'Module',
-        'G' => 'MethodGet',
-        'P' => 'MethodPost',
+        'G' => 'Method',
+        'P' => 'Method',
+        'U' => 'Method',
+        'D' => 'Method',
         'A' => 'ParamValue',
         'R' => 'ReturnValue',
         'M' => 'Message',
@@ -117,24 +131,28 @@ class DocumentData
      */
     private function _startDealData()
     {
-        $resources = config("apidoc.resources");
-        if (!$resources) {
-            throw new ConfigException("resources not setting");
+        $modules = config("apidoc.modules");
+        if (!$modules) {
+            throw new ConfigException("modules not setting");
         }
-        if (!is_array($resources)) {
-            throw new ConfigException("resources not is array");
+        if (!is_array($modules)) {
+            throw new ConfigException("modules not is array");
         }
 
-        foreach ($resources as $resource) {
+        foreach ($modules as $module) {
             // mock数据目录
-            self::$mockDir = isset($resource['mock_dir'])?base_path().DIRECTORY_SEPARATOR.$resource['mock_dir']:"";
-            // 文档数据资源路径
-            self::$resourcePath = base_path().DIRECTORY_SEPARATOR.$resource['resource_path'];
+            self::$mockDir = resource_path($module).DIRECTORY_SEPARATOR.'mock';
             // 提示消息路径
-            self::$messagePath = isset($resource['message_path'])?base_path().DIRECTORY_SEPARATOR.$resource['message_path']:"";
-            // 解析文件
-            $this->_analyseFile(self::$resourcePath);
+            self::$messagePath = resource_path($module).DIRECTORY_SEPARATOR.'message.php';
+            // 提示消息路径
+            self::$errorPath = resource_path($module).DIRECTORY_SEPARATOR.'error.php';
+            // 提示消息路径
+            self::$validatePath = resource_path($module).DIRECTORY_SEPARATOR.'validate.php';
         }
+         // 文档数据资源路径
+         self::$routerPath = base_path().DIRECTORY_SEPARATOR.config("apidoc.router_path");
+         // 解析文件
+         $this->_analyseFile(self::$routerPath);
     }
 
 
@@ -162,8 +180,8 @@ class DocumentData
         //获得单个路由路由新
         foreach ($content[1] as $route) {
             // 判断是否为列表
-            if(in_array($route[0], ["V","G","P"])){
-                self::$methodMode = $route[0]=="G"?"GET":"POST";
+            if(in_array($route[0], ["V","G","P","U","D"])){
+                self::$methodMode = $route[0];
                 $param = explode("-", substr($route, 1));
             }else {
                 $param = explode(",", substr($route, 2, strlen($route) - 3));

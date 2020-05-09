@@ -49,22 +49,6 @@ class Helper{
 
 
 
-    /**
-     * 获得URI前缀
-     *
-     * @param string $version 版本
-     * @param string $moduleName 模块名
-     * @param string $methodName 方法名
-     * @return string
-     */
-    public static function genHttpUrl($version, $moduleName, $methodName)
-    {
-        $url =  env("APP_URL")."/". env("API_PREFIX",'api')."/";
-        $url .= $moduleName . "/";
-        $url .= str_replace("_", "/", $methodName);
-
-        return $url;
-    }
 
 
     /**
@@ -75,28 +59,34 @@ class Helper{
      * @param  mixed $callback 返回消息回调函数
      * @return void
      */
-    public static function checkRequest(string $scene,$resourceKey,$callback)
+    public static function checkRequest(string $moduleNanme,string $scene,$callback)
     {
-        $resource = config("apidoc.resources")[$resourceKey];
-        if (!isset($resource['message_path']) || !$resource['message_path']){
-            return app('request')->all();
+        $valiatePath = resource_path($moduleNanme).DIRECTORY_SEPARATOR."validate.php";
+        if(!is_file($valiatePath)){
+            return request();
         }
-        $data = require base_path().DIRECTORY_SEPARATOR.$resource['message_path'];
-        if (!isset($data['validate'][$scene])) {
+        $messagePath = resource_path($moduleNanme).DIRECTORY_SEPARATOR."message.php";
+        if(!is_file($messagePath)){
+            return app('request');
+        }
+
+        $data = require $valiatePath;
+        $messageList = require $messagePath;
+        if (!isset($data[$scene])) {
             throw new ConfigException("验证的场景错误，请查看config配置");
         }
-        if ($dataList = $data['validate'][$scene]) {
+        if ($dataList = $data[$scene]) {
             $rules = [];
             $messages = [];
-            foreach ($dataList as $key => $value) {
+            foreach ($dataList as $key => $code) {
                 list($field, $require) = explode(".", $key);
                 $rules[$field][] = $require;
                 $require = explode(":", $require);
-                $messages[$field . "." . $require[0]] = $value;
+                $messages[$field . "." . $require[0]] = $messageList[$code];
             }
-            return self::customerValidator($rules,$messages,$callback);
-        }
 
+            return self::customerValidator($rules,$messages,$code,$callback);
+        }
     }
 
 
@@ -109,19 +99,19 @@ class Helper{
      * @return void
      */
 
-    public static function customerValidator($rules,$messages,$callback)
+    public static function customerValidator($rules,$messages,$code,$callback)
     {
         array_walk($rules, function (&$value) {
             $value = implode("|", $value);
             $value = str_replace("@",".",$value);
         });
+
         $validator = Validator::make(app('request')->all(), $rules, $messages);
         if ($validator->fails()) {
             $result = current($validator->errors()->getMessages());
-            list($code, $message) = explode("|", $result[0]);
-            return call_user_func($callback,$code,$message);
+            return call_user_func($callback,$code,$result[0]);
         }
-        return app('request')->all();
+        return app('request');
     }
 }
 

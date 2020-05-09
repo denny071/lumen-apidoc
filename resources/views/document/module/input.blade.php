@@ -5,7 +5,7 @@
 </div>
 @else
 <div class="bs-example my-bs-input" id="{{$className}}_{{$methodName}}_egurl">
-    <code>{{$method['http']}}</code>
+    <code>{{!!$method['http']!!}}</code>
     <div style="margin:20px"></div>
     <?php
         $inputdata = $method['input'];

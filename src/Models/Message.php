@@ -25,28 +25,30 @@ class Message
      */
     public static function dealData(array $dataList)
     {
+
+        $handler = &DocumentData::$documentData[DocumentData::$moduleNameKey]['method'][DocumentData::$methodName];
+        if (is_file(DocumentData::$messagePath)){
+            $messageList = require DocumentData::$messagePath;
+
+            self::_dealConfigValidateMessage($handler,$messageList);
+            self::_dealConfigErrorMessage($handler,$messageList);
+        }
+
          //获得消息列表的消息信息
          foreach ($dataList as $message) {
+
             $messageInfo = explode("-", $message);
-            if ($messageInfo[0] == "config:validate" && DocumentData::$messagePath) {
-                self::_dealConfigValidateMessage($messageInfo[1]);
-                continue;
-            }
-            if ($messageInfo[0] == "config:error" && DocumentData::$messagePath) {
-                self::_dealConfigErrorMessage($messageInfo[1]);
-                continue;
-            }
+
             if(!in_array($messageInfo[0]{0},array_keys(self::$_errorType))){
                 continue;
             }
-
             if (count($messageInfo) == 2) {
                 //获得类型
                 $type = self::$_errorType[$messageInfo[0]{0}];
                 //获得编码
                 $code = substr($messageInfo[0], 1);
                 //设置数据
-                DocumentData::$documentData[DocumentData::$moduleNameKey]['method'][DocumentData::$methodName][$type][$code] = $messageInfo[1];
+                $handler[$type][$code] = $messageInfo[1];
             }
             //构造错误码（新增）
             if (count($messageInfo) == 1) {
@@ -56,9 +58,10 @@ class Message
                 $code = substr($messageInfo[0], 1);
                 //设置数据
                 $message=config('message')['1.0.0']['cn'];
-                DocumentData::$documentData[DocumentData::$moduleNameKey]['method'][DocumentData::$methodName][$type][$code] = $message[$code];
+                $handler[$type][$code] = $message[$code];
             }
         }
+
     }
 
 
@@ -69,23 +72,25 @@ class Message
      * @param  mixed $messageInfo
      * @return void
      */
-    private static function _dealConfigValidateMessage($messageInfo)
+    private static function _dealConfigValidateMessage(&$handler,$messageList)
     {
-        $config = require DocumentData::$messagePath;
-        foreach (explode("|",$messageInfo) as $messageKey) {
-            foreach ($config['validate'][$messageKey] as $key => $value) {
-                list($field, $condition) = explode(".",$key);
-                list($code, $message) = explode("|",$value);
-                if (strpos($condition,":")) {
-                    list($replaceKey,$replaceValue) = explode(":",$condition);
-                    $message = str_replace(":".$replaceKey,$replaceValue,$message);
-                }
-                DocumentData::$documentData[DocumentData::$moduleNameKey]['method']
-                [DocumentData::$methodName]["info"][$code] =$message;
-            }
+        if (!is_file(DocumentData::$validatePath)){
+            return false;
         }
-        ksort( DocumentData::$documentData[DocumentData::$moduleNameKey]['method']
-        [DocumentData::$methodName]["info"]);
+        $validateList = require DocumentData::$validatePath;
+
+        foreach ($validateList[DocumentData::$methodName] as $key => $code) {
+            $message = $messageList[$code];
+            $condition = explode(".",$key)[1];
+            if (strpos($condition,":")) {
+                list($replaceKey,$replaceValue) = explode(":",$condition);
+                $message = str_replace(":".$replaceKey,$replaceValue,$message);
+            }
+            $handler["info"][$code] = $message;
+        }
+        ksort($handler["info"]);
+
+
     }
 
     /**
@@ -94,16 +99,15 @@ class Message
      * @param  mixed $messageInfo
      * @return void
      */
-    private static function _dealConfigErrorMessage($messageInfo)
+    private static function _dealConfigErrorMessage(&$handler,$messageList)
     {
-        $config = require DocumentData::$messagePath;
-        foreach (explode("|",$messageInfo) as $messageKey) {
-            foreach ($config['error'][$messageKey] as $code) {
-                DocumentData::$documentData[DocumentData::$moduleNameKey]['method']
-                [DocumentData::$methodName]["error"][$code] =$errorMessage[$code];
-            }
+        if (!is_file(DocumentData::$errorPath)){
+            return false;
         }
-        ksort( DocumentData::$documentData[DocumentData::$moduleNameKey]['method']
-        [DocumentData::$methodName]["error"]);
+        $errorList = require DocumentData::$errorPath;
+        foreach ($errorList[DocumentData::$methodName] as $code) {
+            $handler["error"][$code] = $messageList[$code];
+        }
+        ksort($handler["error"]);
     }
 }

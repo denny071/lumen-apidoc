@@ -1,6 +1,6 @@
 
 @if(isset($method['success']))
-<div class="bs-callout bs-callout-success" id="callout-tables-responsive-overflow" style="margin-bottom: 0;">
+<div class="bs-callout bs-callout-success" id="callout-tables-responsive-overflow" style="margin-bottom: 10px;">
     <table class="table table-bordered table-striped table-condensed">
         <caption>成功编码</caption>
         <thead>
@@ -21,13 +21,13 @@
 </div>
 @endif
 @if(isset($method['info']))
-<div class="bs-callout bs-callout-info" id="callout-tables-responsive-overflow" style="margin-bottom: 0;">
+<div class="bs-callout bs-callout-info" id="callout-tables-responsive-overflow" style="margin-bottom: 10px;">
     <table class="table table-bordered table-striped table-condensed">
         <caption>请求响应信息</caption>
         <thead>
         <tr>
             <th style="width:20%">编码</th>
-            <th>说明</th>
+            <th style="width:80%">说明</th>
         </tr>
         </thead>
         <tbody>
@@ -42,13 +42,13 @@
 </div>
 @endif
 @if(isset($method['fail']))
-<div class="bs-callout bs-callout-danger" id="callout-tables-responsive-overflow" style="margin-bottom: 0;">
+<div class="bs-callout bs-callout-warning" id="callout-tables-responsive-overflow" style="margin-bottom: 10px;">
     <table class="table table-bordered table-striped table-condensed">
-        <caption>错误编码</caption>
+        <caption>失败编码</caption>
         <thead>
             <tr>
-                <th style="width:30%">状态码</th>
-                <th style="width:40%">描述</th>
+                <th style="width:20%">编码</th>
+                <th style="width:80%">说明</th>
             </tr>
         </thead>
         <tbody>
@@ -63,13 +63,13 @@
 </div>
 @endif
 @if(isset($method['error']))
-<div class="bs-callout bs-callout-danger" id="callout-tables-responsive-overflow" style="margin-bottom: 0;">
+<div class="bs-callout bs-callout-danger" id="callout-tables-responsive-overflow" style="margin-bottom: 10px;">
     <table class="table table-bordered table-striped table-condensed">
         <caption>错误编码</caption>
         <thead>
             <tr>
                 <th style="width:20%">编码</th>
-                <th>说明</th>
+                <th style="width:80%">说明</th>
             </tr>
         </thead>
         <tbody>

@@ -12,8 +12,8 @@
         </thead>
         <tbody>
             @foreach($method['params'] as $param)
-            <tr class="{{$param['optional']==1?"":"info"}}">
-                <td>{{$param['name'] . ($param['name']=="accessToken"?" (GET传递)":"")}}</td>
+            <tr class="{{$param['optional']==1?"warning":""}}">
+                <td>{{$param['name']}}</td>
                 <td>{{$param['type']}}</td>
                 <td>{{$param['optional']==1?"是":"否"}}</td>
                 <td>{{$param['describe']}}</td>
