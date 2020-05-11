@@ -68,9 +68,7 @@ class Document
 
         $Parsedown = new \Parsedown();
 
-        $language = config('apidoc.language');
-
-        $markdownFile = file_get_contents(__DIR__."/../docs/{$language}/manual.md");
+        $markdownFile = file_get_contents(__DIR__."/../docs/manual.md");
 
         $content = $Parsedown->text($markdownFile);
 
