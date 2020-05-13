@@ -12,7 +12,7 @@
         </thead>
         <tbody>
             @foreach($method['params'] as $param)
-            <tr class="{{$param['optional']==1?"warning":""}}">
+            <tr class="{{$param['optional']==1?"":"info"}}">
                 <td>{{$param['name']}}</td>
                 <td>{{$param['type']}}</td>
                 <td>{{$param['optional']==1?"是":"否"}}</td>

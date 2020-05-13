@@ -54,7 +54,7 @@ class Method
                 if(isset($uri{0}) && $uri{0} == "{") {
                     $content = explode("|",substr($uri,1,strlen($uri)-2)) ;
                     $handle['params'][] = [
-                        "optional" => "1",
+                        "optional" => "2",
                         "type" => self::$_paramType[$content[0]],
                         "name" => $content[1],
                         "describe" => $content[2]."(URL参数)"
@@ -73,10 +73,84 @@ class Method
             $handle['title'] = $data[1];
             // 设置方法吗描述
             $handle['describe'] = isset($data[3]) ? $data[3] : "";
+            // 设置Mock
+            $handle['output'] = Mock::dealData();
+
+            $handler = &DocumentData::$documentData[DocumentData::$moduleNameKey]['method'][DocumentData::$methodName];
+            $messagePath = resource_path(DocumentData::$moduleName).DIRECTORY_SEPARATOR.'message.php';
+
+            if (is_file($messagePath)){
+                $messageList = require $messagePath;
+                self::dealConfigValidateMessage($handler,$messageList);
+                self::dealConfigErrorMessage($handler,$messageList);
+            }
 
         } else {
             Helper::sendMessageJson(implode(",", $data) . "方法信息不正确");
         }
+    }
+
+    /**
+     * _dealConfigValidateMessage 处理模块内的配置文件提示信息函数
+     *
+     * @param  mixed $messageInfo
+     * @return void
+     */
+    public static function dealConfigValidateMessage(&$handler,$messageList,$validateList = [])
+    {
+        $validatePath = resource_path(DocumentData::$moduleName).DIRECTORY_SEPARATOR.'validate.php';
+        if (!is_file($validatePath)){
+            return false;
+        }
+        if ($validateList) {
+            $dataList = $validateList;
+        } else {
+            $validateList = require $validatePath;
+            if (!isset($validateList[DocumentData::$methodName])) {
+                return false;
+            }
+            $dataList = $validateList[DocumentData::$methodName];
+        }
+        foreach ($dataList as $key => $code) {
+            $message = $messageList[$code];
+            $condition = explode(".",$key)[1];
+            if (strpos($condition,":")) {
+                list($replaceKey,$replaceValue) = explode(":",$condition);
+                $message = str_replace(":".$replaceKey,$replaceValue,$message);
+            }
+            $handler["info"][$code] = $message;
+        }
+        ksort($handler["info"]);
+    }
+
+    /**
+     * _dealConfigErrorMessage 处理模块内的配置文件错误信息函数
+     *
+     * @param  mixed $messageInfo
+     * @return void
+     */
+    public static function dealConfigErrorMessage(&$handler,$messageList,$errorList = [])
+    {
+        // 提示消息路径
+        $errorPath = resource_path(DocumentData::$moduleName).DIRECTORY_SEPARATOR.'error.php';
+
+        if (!is_file($errorPath)){
+            return false;
+        }
+        if ($errorList) {
+            $dataList = $errorList;
+        } else {
+            $errorList = require $errorPath;
+            if (!isset($errorList[DocumentData::$methodName])) {
+                return false;
+            }
+            $dataList = $errorList[DocumentData::$methodName];
+        }
+
+        foreach ($dataList as $code) {
+            $handler["error"][$code] = $messageList[$code];
+        }
+        ksort($handler["error"]);
     }
 
 

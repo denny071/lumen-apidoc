@@ -1,7 +1,6 @@
 <?php
 namespace  Denny071\LaravelApidoc\Models;
 
-use Denny071\LaravelApidoc\Helper;
 
 use Denny071\LaravelApidoc\DocumentData;
 

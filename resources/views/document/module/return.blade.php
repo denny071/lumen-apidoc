@@ -49,3 +49,18 @@
     </table>
 </div>
 @endif
+
+@if(isset($method['return_state']))
+<div class="table-responsive">
+    <table class="table table-bordered table-striped table-condensed">
+        <caption>响应状态</caption>
+        <thead>
+            <tr>
+                <th  style="width:20%">HTTP状态</th>
+            <th  style="width:80%">{{$method['return_state']}}</th>
+            </tr>
+        </thead>
+    </table>
+</div>
+@endif
+

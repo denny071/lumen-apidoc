@@ -25,18 +25,19 @@ class Message
      */
     public static function dealData(array $dataList)
     {
-
-        $handler = &DocumentData::$documentData[DocumentData::$moduleNameKey]['method'][DocumentData::$methodName];
-        if (is_file(DocumentData::$messagePath)){
-            $messageList = require DocumentData::$messagePath;
-
-            self::_dealConfigValidateMessage($handler,$messageList);
-            self::_dealConfigErrorMessage($handler,$messageList);
-        }
-
          //获得消息列表的消息信息
          foreach ($dataList as $message) {
-
+            $handler = &DocumentData::$documentData[DocumentData::$moduleNameKey]['method'][DocumentData::$methodName];
+            if(strstr($message, 'config:')){
+                $configInfo = explode(":",$message);
+                $configFile = resource_path().DIRECTORY_SEPARATOR. $configInfo[1]."_".$configInfo[0] .".php";
+                if (!is_file($configFile)) {
+                    continue;
+                }
+                $configList = require $configFile;
+                Method::dealConfigValidateMessage($handler,$configList['message'],$configList['validate']);
+                Method::dealConfigErrorMessage($handler,$configList['message'],$configList['error']);
+            }
             $messageInfo = explode("-", $message);
 
             if(!in_array($messageInfo[0]{0},array_keys(self::$_errorType))){
@@ -66,48 +67,5 @@ class Message
 
 
 
-    /**
-     * _dealConfigValidateMessage 处理模块内的配置文件提示信息函数
-     *
-     * @param  mixed $messageInfo
-     * @return void
-     */
-    private static function _dealConfigValidateMessage(&$handler,$messageList)
-    {
-        if (!is_file(DocumentData::$validatePath)){
-            return false;
-        }
-        $validateList = require DocumentData::$validatePath;
 
-        foreach ($validateList[DocumentData::$methodName] as $key => $code) {
-            $message = $messageList[$code];
-            $condition = explode(".",$key)[1];
-            if (strpos($condition,":")) {
-                list($replaceKey,$replaceValue) = explode(":",$condition);
-                $message = str_replace(":".$replaceKey,$replaceValue,$message);
-            }
-            $handler["info"][$code] = $message;
-        }
-        ksort($handler["info"]);
-
-
-    }
-
-    /**
-     * _dealConfigErrorMessage 处理模块内的配置文件错误信息函数
-     *
-     * @param  mixed $messageInfo
-     * @return void
-     */
-    private static function _dealConfigErrorMessage(&$handler,$messageList)
-    {
-        if (!is_file(DocumentData::$errorPath)){
-            return false;
-        }
-        $errorList = require DocumentData::$errorPath;
-        foreach ($errorList[DocumentData::$methodName] as $code) {
-            $handler["error"][$code] = $messageList[$code];
-        }
-        ksort($handler["error"]);
-    }
 }

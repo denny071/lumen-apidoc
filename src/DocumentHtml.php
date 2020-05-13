@@ -83,7 +83,7 @@ class DocumentHtml
      * @param  mixed $content
      * @return void
      */
-    private function _hideButton($content)
+    private function _hideButton($content) : string
     {
 
         $replaceContent = ".download_css{display: none !important;}";

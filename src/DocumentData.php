@@ -3,6 +3,7 @@
 namespace Denny071\LaravelApidoc;
 
 use Denny071\LaravelApidoc\Exception\ConfigException;
+use Denny071\LaravelApidoc\Models\Mock;
 
 /**
  * 文档数据
@@ -49,42 +50,8 @@ class DocumentData
      */
     static public $methodMode = "";
 
-    /**
-     *
-     * @var string 参数类型
-     */
-    static public $paramType = "";
 
 
-    /**
-     *
-     * @var string 路由地址
-     */
-    static public $routerPath = "";
-
-    /**
-     *
-     * @var string 消息文件地址
-     */
-    static public $messagePath = "";
-
-    /**
-     *
-     * @var string 错误消息文件地址
-     */
-    static public $errorPath = "";
-
-    /**
-     *
-     * @var string 输入验证文件地址
-     */
-    static public $validatePath = "";
-
-      /**
-     *
-     * @var string mock目录地址
-     */
-    static public $mockDir = "";
 
     /**
      *
@@ -116,8 +83,8 @@ class DocumentData
         if (file_exists($documentFile) && $cacheEnable) {
             self::$documentData = json_decode(file_get_contents($documentFile), true);
         } else {
-            //生成缓存数据
-            $this->_startDealData();
+            // 解析文件
+            $this->_analyseFile(base_path().DIRECTORY_SEPARATOR.config("apidoc.router_path"));
             //写入文件
             if($cacheEnable) {
                 file_put_contents($documentFile, json_encode(self::$documentData, JSON_UNESCAPED_UNICODE));
@@ -126,34 +93,6 @@ class DocumentData
     }
 
 
-    /**
-     * 生成缓存数据文件
-     */
-    private function _startDealData()
-    {
-        $modules = config("apidoc.modules");
-        if (!$modules) {
-            throw new ConfigException("modules not setting");
-        }
-        if (!is_array($modules)) {
-            throw new ConfigException("modules not is array");
-        }
-
-        foreach ($modules as $module) {
-            // mock数据目录
-            self::$mockDir = resource_path($module).DIRECTORY_SEPARATOR.'mock';
-            // 提示消息路径
-            self::$messagePath = resource_path($module).DIRECTORY_SEPARATOR.'message.php';
-            // 提示消息路径
-            self::$errorPath = resource_path($module).DIRECTORY_SEPARATOR.'error.php';
-            // 提示消息路径
-            self::$validatePath = resource_path($module).DIRECTORY_SEPARATOR.'validate.php';
-        }
-         // 文档数据资源路径
-         self::$routerPath = base_path().DIRECTORY_SEPARATOR.config("apidoc.router_path");
-         // 解析文件
-         $this->_analyseFile(self::$routerPath);
-    }
 
 
     /**
@@ -177,6 +116,7 @@ class DocumentData
             return;
         }
 
+
         //获得单个路由路由新
         foreach ($content[1] as $route) {
             // 判断是否为列表
@@ -188,5 +128,10 @@ class DocumentData
             }
             ("\\Denny071\\LaravelApidoc\\Models\\".self::$keyMethod[$route[0]])::dealData($param);
         }
+
+
     }
+
+
+
 }

@@ -17,17 +17,13 @@ class Mock
      */
     public static function dealData()
     {
-        if(!DocumentData::$mockDir){
+        $outputJsonFilePath = resource_path(DocumentData::$moduleName).DIRECTORY_SEPARATOR.'mock' . DIRECTORY_SEPARATOR .
+                              "V" .DocumentData::$version. DIRECTORY_SEPARATOR . DocumentData::$methodName . ".json";
+        if (file_exists($outputJsonFilePath)) {
+            return file_get_contents($outputJsonFilePath);
+        } else {
             return "";
         }
-        $outputJsonFilePath = DocumentData::$mockDir . DIRECTORY_SEPARATOR . "V" .DocumentData::$version
-                              . DIRECTORY_SEPARATOR . DocumentData::$methodName . ".json";
-        $content = "";
-        if (file_exists($outputJsonFilePath)) {
-            $content = file_get_contents($outputJsonFilePath);
-        }
-        return $content;
-
     }
 
 }
