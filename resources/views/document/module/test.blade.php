@@ -13,13 +13,25 @@
         </div>
         @if(isset($method['params']))
             @foreach($method['params'] as $param)
-            <div class="form-group">
-            <label for="{{$className}}-{{$methodName}}-{{$param['name']}}"
-            class="col-sm-2 control-label {{$param['optional']=="2"?"text-danger":""}}">{{$param['name']}}</label>
-                <div class="col-sm-10">
-                <input type="text" class="form-control" name="{{$param['name']}}" alt='{{$param['optional']}}' id="{{$className}}-{{$methodName}}-{{$param['name']}}"  >
+                @if($param['type'] == "file")
+                <div class="form-group">
+                <label for="{{$className}}-{{$methodName}}-{{$param['name']}}"
+                class="col-sm-2 control-label {{$param['optional']=="2"?"text-danger":""}}">{{$param['name']}}</label>
+                    <div class="col-sm-10">
+                    <input type="file" class="form-control" name="{{$param['name']}}" alt='{{$param['optional']}}' id="{{$className}}-{{$methodName}}-{{$param['name']}}"  >
+                    </div>
                 </div>
-            </div>
+                @else
+                <div class="form-group">
+                <label for="{{$className}}-{{$methodName}}-{{$param['name']}}"
+                class="col-sm-2 control-label {{$param['optional']=="2"?"text-danger":""}}">{{$param['name']}}</label>
+                    <div class="col-sm-10">
+                    <input type="text" class="form-control" name="{{$param['name']}}" alt='{{$param['optional']}}' id="{{$className}}-{{$methodName}}-{{$param['name']}}"  >
+                    </div>
+                </div>
+
+                @endif
+
             @endforeach
         @endif
             <div class="form-group">
@@ -31,30 +43,44 @@
 </div>
 <script>
 $(function(){
+    // 初始化变量
     @php
+        $paramString = "";
+        $bodyString = "";
+        $fileString = "";
         if(isset($method['params'])) {
             $body = [];
             $param = [];
+            $file = [];
             foreach($method['params'] as $value){
                 if($value['optional']=="2"){
                     $param[] = $value['name'].":''";
                 } else {
-                    $body[] = $value['name'].":''";
+                    if($value['type'] == "file") {
+                        $file[] = $value['name'].":'".$className."-".$methodName."-".$value['name']."'";
+
+                    } else {
+                        $body[] = $value['name'].":''";
+                    }
                 }
             }
-            $bodyString = implode(",",$body);
             $paramString = implode(",",$param);
+            $bodyString = implode(",",$body);
+            $fileString = implode(",",$file);
         }
     @endphp
+    // 初始化结构体
     var {{$className}}_{{$methodName}}_data = {
         param : {{!!$paramString!!}},
         body : {{!!$bodyString!!}},
+        file : {{!!$fileString!!}},
         url_string : "{{$method['http']}}",
         param_string : ""
 
     }
+    // GET方式
     @if($method['mode'] == "GET" )
-        //设置输入框
+        // 绑定输入框
         $("#{{$className}}-{{$methodName}}-test-form input").bind("keyup",function(){
             if($(this).attr("alt") == "2") {
                 {{$className}}_{{$methodName}}_data['param'][$(this).attr("name")] = $(this).val();
@@ -75,30 +101,34 @@ $(function(){
             }
             $("#{{$className}}-{{$methodName}}-test-url").text({{$className}}_{{$methodName}}_data['url_string'] + {{$className}}_{{$methodName}}_data['param_string']);
         });
+        // 测试按钮事件
         $("#{{$className}}-{{$methodName}}-test-btn").bind("click",function(){
-            $.get($("#{{$className}}-{{$methodName}}-test-url").text(),{},function(data){
-                if(data == 1){
+            ajax_url = $("#{{$className}}-{{$methodName}}-test-url").text()
+            $.ajax({
+                type: "get",
+                dataType: 'json',
+                url: ajax_url,
+                processData : false, // 使数据不做处理
+                contentType : false, // 不要设置Content-Type请求头
+                success: function (data) {
                     layer.open({
                         type: 1,
                         maxmin: true,
-                        area: ['500px', '500px'],
-                        content:  $("<div>").append($("<div>").css("white-space", 'pre').css("margin", '20px')
-                                .text($('#{{$className}}_{{$methodName}}_outputinfo').text())).html()
+                        area: ['400px', '500px'],
+                        content: $("<div>").append($("<div>").css("white-space", 'pre').css("margin", '20px')
+                            .text(JSON.stringify(data, null, 4))).html()
                     });
-                }else{
-                    layer.open({
-                        type: 1,
-                        maxmin: true,
-                        area: ['500px', '500px'],
-                        content:  $("<div>").append($("<div>").css("white-space", 'pre').css("margin", '20px')
-                                .text(JSON.stringify(data, null, 4))).html()
-                    });
+                },
+                error: function (data) {
+                    layer.alert(data.responseJSON.message)
                 }
-            },"json");
+            });
+
         });
     @endif
+    // POST方式
     @if($method['mode'] == "POST" )
-        //设置输入框
+        // 绑定输入框
         $("#{{$className}}-{{$methodName}}-test-form input").bind("keyup",function(){
             if($(this).attr("alt") == "2") {
                 {{$className}}_{{$methodName}}_data['param'][$(this).attr("name")] = $(this).val();
@@ -120,12 +150,26 @@ $(function(){
                 $("#{{$className}}-{{$methodName}}-request-data").show();
                 $("#{{$className}}-{{$methodName}}-request-data pre").html("{\n"+{{$className}}_{{$methodName}}_data['param_string']+"\n}");
             }
-
         });
+        // 测试按钮事件
         $("#{{$className}}-{{$methodName}}-test-btn").bind("click",function(){
             var requestString = {{$className}}_{{$methodName}}_data['body'];
             var ajax_url = $("#{{$className}}-{{$methodName}}-test-url").text();
             var requestdata = JSON.stringify(requestString);
+
+
+            var formData = new FormData();
+            if({{$className}}_{{$methodName}}_data['file'] != "") {
+                Object.getOwnPropertyNames({{$className}}_{{$methodName}}_data['file']).forEach(function(key){
+                    formData.append(key,$('#'+{{$className}}_{{$methodName}}_data['file'][key])[0].files[0]);
+                })
+            }
+            if({{$className}}_{{$methodName}}_data['body'] != "") {
+                Object.getOwnPropertyNames({{$className}}_{{$methodName}}_data['body']).forEach(function(key){
+                    formData.append(key,{{$className}}_{{$methodName}}_data['body'][key]);
+                })
+            }
+
             if("{{$model}}" == "mock"){
                 ajax_url += "&model=mock";
             }
@@ -133,8 +177,9 @@ $(function(){
                 type: "post",
                 dataType: 'json',
                 url: ajax_url,
-                contentType: 'application/json',
-                data: requestdata,
+                data: formData,
+                processData : false, // 使数据不做处理
+                contentType : false, // 不要设置Content-Type请求头
                 success: function (data) {
 
                         layer.open({
@@ -146,17 +191,15 @@ $(function(){
                         });
                 },
                 error: function (data) {
-                    if(data.status == 201) {
-                        layer.msg("创建或更新成功")
-                    }
+                    layer.alert(data.responseJSON.message)
                 }
             });
         })
     @endif
 
-
+    // PUT方式
     @if($method['mode'] == "PUT" )
-        //设置输入框
+        // 绑定输入框
         $("#{{$className}}-{{$methodName}}-test-form input").bind("keyup",function(){
             var http_request_url = "{{$method['http']}}";
             if($(this).attr("alt") == "2") {
@@ -179,8 +222,8 @@ $(function(){
                 $("#{{$className}}-{{$methodName}}-request-data").show();
                 $("#{{$className}}-{{$methodName}}-request-data pre").html("{\n"+{{$className}}_{{$methodName}}_data['param_string']+"\n}");
             }
-
         });
+        // 测试按钮事件
         $("#{{$className}}-{{$methodName}}-test-btn").bind("click",function(){
             var requestString = {{$className}}_{{$methodName}}_data['body'];
             var ajax_url = $("#{{$className}}-{{$methodName}}-test-url").text();
@@ -207,9 +250,7 @@ $(function(){
                 error: function (data) {
                     if(data.status == 201) {
                         layer.msg("创建或更新成功")
-                    }
-
-                    if(data.status == 500) {
+                    } else {
                         layer.alert(data.responseJSON.message)
                     }
                 }
@@ -217,9 +258,9 @@ $(function(){
         })
     @endif
 
-
+    // DELETE
     @if($method['mode'] == "DELETE")
-        //设置输入框
+        // 绑定输入框
         $("#{{$className}}-{{$methodName}}-test-form input").bind("keyup",function(){
 
             if($(this).attr("alt") == "2") {
@@ -242,6 +283,7 @@ $(function(){
 
             $("#{{$className}}-{{$methodName}}-test-url").text({{$className}}_{{$methodName}}_data['url_string'] + {{$className}}_{{$methodName}}_data['param_string']);
         });
+        // 测试按钮事件
         $("#{{$className}}-{{$methodName}}-test-btn").bind("click",function(){
             var requestString = {{$className}}_{{$methodName}}_data['body'];
             var ajax_url = $("#{{$className}}-{{$methodName}}-test-url").text();
@@ -258,8 +300,7 @@ $(function(){
                 error: function (data) {
                     if(data.status == 201) {
                         layer.msg("创建或更新成功")
-                    }
-                    if(data.status == 500) {
+                    } else {
                         layer.alert(data.responseJSON.message)
                     }
                 }

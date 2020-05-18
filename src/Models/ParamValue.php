@@ -15,7 +15,7 @@ class ParamValue
      *
      * @var array 参数模型
      */
-    static private $_paramType = ['S' => 'string', 'I' => 'int', 'A' => 'array'];
+    static private $_paramType = ['S' => 'string', 'I' => 'int', 'A' => 'array', 'F' => 'file'];
 
     /**
      * __construct 初始化
