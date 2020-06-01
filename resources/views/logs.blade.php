@@ -8,8 +8,7 @@
 
   <!-- Bootstrap -->
   <link rel="stylesheet" href="/document/bootstrap.min.css">
-  <link rel="stylesheet"
-        href="/document/dataTables.bootstrap.css">
+  <link rel="stylesheet" href="/document/dataTables.bootstrap.css">
 
 
   <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->

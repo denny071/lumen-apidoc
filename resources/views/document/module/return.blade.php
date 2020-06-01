@@ -33,18 +33,26 @@
         <caption>响应参数</caption>
         <thead>
             <tr>
-                <th  style="width:20%">参数名</th>
-                <th  style="width:80%">说明</th>
+                <th  style="width:30%">参数名</th>
+                <th  style="width:70%">说明</th>
             </tr>
         </thead>
         <tbody>
-            @foreach($method['return'] as $return)
-            <tr>
-                <td>{{$return['name']}}</td>
-                <td>{{$return['describe']}}</td>
-            </tr>
-            @endforeach
-
+            @php
+            $tag = "";
+            foreach($method['return'] as $return){
+                if(strpos($return['describe'],"@")) {
+                    list($title,$value) = explode("@",$return['describe']);
+                    if ($tag != $title) {
+                        echo "<tr><th colspan='2'>{$title}</th></tr>";
+                        $tag = $title;
+                    }
+                    echo "<tr><td>&nbsp;&nbsp;&nbsp;|——{$return['name']}</td><td>{$value}</td></tr>";
+                } else {
+                    echo "<tr><td>{$return['name']}</td><td>{$return['describe']}</td></tr>";
+                }
+            }
+            @endphp
         </tbody>
     </table>
 </div>

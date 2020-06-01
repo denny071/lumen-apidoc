@@ -98,13 +98,13 @@ class Method
      */
     public static function dealConfigValidateMessage(&$handler,$messageList,$validateList = [])
     {
-        $validatePath = resource_path(DocumentData::$moduleName).DIRECTORY_SEPARATOR.'validate.php';
-        if (!is_file($validatePath)){
-            return false;
-        }
         if ($validateList) {
             $dataList = $validateList;
         } else {
+            $validatePath = resource_path(DocumentData::$moduleName).DIRECTORY_SEPARATOR.'validate.php';
+            if (!is_file($validatePath)){
+                return false;
+            }
             $validateList = require $validatePath;
             if (!isset($validateList[DocumentData::$methodName])) {
                 return false;
@@ -114,12 +114,16 @@ class Method
         foreach ($dataList as $key => $code) {
             $message = $messageList[$code];
             $condition = explode(".",$key)[1];
+            if ($condition == "nullable") {
+                continue;
+            }
             if (strpos($condition,":")) {
                 list($replaceKey,$replaceValue) = explode(":",$condition);
                 $message = str_replace(":".$replaceKey,$replaceValue,$message);
             }
             $handler["info"][$code] = $message;
         }
+
         ksort($handler["info"]);
     }
 
@@ -154,6 +158,23 @@ class Method
     }
 
 
+    /**
+     * dealConfigInput 处理输入
+     *
+     * @param  mixed $handler
+     * @param  mixed $inputList
+     * @return void
+     */
+    public static function dealConfigInput($inputList){
+
+        //获得参数列表的参数信息
+        foreach ($inputList as $paramInfo) {
+            $param = explode("-", $paramInfo);
+            if (count($param) == 3) {
+                ParamValue::dealItem($param);
+            }
+        }
+    }
 
 
 }

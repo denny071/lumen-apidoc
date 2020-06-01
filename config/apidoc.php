@@ -10,9 +10,6 @@ return [
         // 数据缓存文件
         "document_data" => storage_path('app').DIRECTORY_SEPARATOR."DocData",
     ],
-    "modules" => [
-        "Authorization","Product"
-    ],
     "router_path" => "routes/web.php",
     // 文档uri
     "router_prefix" => "apidoc",

@@ -135,12 +135,12 @@ class Helper
     public static function customerValidator($rules, $messages, $messageList, $callback)
     {
         array_walk($rules, function (&$value) {
-            $value      = implode("|", $value);
             $value      = str_replace("@", ".", $value);
         });
-
         $validator = Validator::make(app('request')->all(), $rules, $messages);
+
         if ($validator->fails()) {
+
             $message    =   current($validator->errors()->getMessages())[0];
             $code       =   array_flip($messageList)[$message];
             return call_user_func($callback, $code, $message);

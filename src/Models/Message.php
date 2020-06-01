@@ -37,6 +37,7 @@ class Message
                 $configList = require $configFile;
                 Method::dealConfigValidateMessage($handler,$configList['message'],$configList['validate']);
                 Method::dealConfigErrorMessage($handler,$configList['message'],$configList['error']);
+                Method::dealConfigInput($configList['input']);
             }
             $messageInfo = explode("-", $message);
 

@@ -191,7 +191,12 @@ $(function(){
                         });
                 },
                 error: function (data) {
-                    layer.alert(data.responseJSON.message)
+                    if(data.status == "201") {
+                        layer.msg("创建成功")
+                    } else {
+                        layer.alert(data.responseJSON.message)
+                    }
+
                 }
             });
         })
@@ -238,7 +243,6 @@ $(function(){
                 contentType: 'application/json',
                 data: requestdata,
                 success: function (data) {
-
                         layer.open({
                             type: 1,
                             maxmin: true,
@@ -285,9 +289,7 @@ $(function(){
         });
         // 测试按钮事件
         $("#{{$className}}-{{$methodName}}-test-btn").bind("click",function(){
-            var requestString = {{$className}}_{{$methodName}}_data['body'];
             var ajax_url = $("#{{$className}}-{{$methodName}}-test-url").text();
-            var requestdata = JSON.stringify(requestString);
             if("{{$model}}" == "mock"){
                 ajax_url += "&model=mock";
             }
@@ -296,12 +298,9 @@ $(function(){
                 dataType: 'json',
                 url: ajax_url,
                 contentType: 'application/json',
-                data: requestdata,
-                error: function (data) {
-                    if(data.status == 201) {
-                        layer.msg("创建或更新成功")
-                    } else {
-                        layer.alert(data.responseJSON.message)
+                success: function (data,status) {
+                    if(status == "nocontent") {
+                        layer.msg("删除成功")
                     }
                 }
             });

@@ -27,22 +27,29 @@ class ParamValue
     {
         //获得参数列表的参数信息
         foreach ($dataList as $paramInfo) {
-            $data = [];
             $param = explode("-", $paramInfo);
             if (count($param) == 3) {
-                //判断参数是否可选
-                $data['optional'] = ($param[0]{0} == "?") ? 0 : 1;
-                //参数类型
-                $data['type'] = ($param[0]{0} == "?") ? self::$_paramType[$param[0]{1}] : self::$_paramType[$param[0]{0}];
-                //参数名称
-                $data['name'] = $param[1];
-                //参数描述
-                $data['describe'] = $param[2];
-                //设置参数数据
-                DocumentData::$documentData[DocumentData::$moduleNameKey]['method'][DocumentData::$methodName]['params'][] = $data;
+                self::dealItem($param);
             }
         }
-
     }
 
+    /**
+     * dealItem 处理项目
+     *
+     * @param  array $param 项目
+     * @return void
+     */
+    public static function dealItem(array $param){
+        //判断参数是否可选
+        $data['optional'] = ($param[0]{0} == "?") ? 0 : 1;
+        //参数类型
+        $data['type'] = ($param[0]{0} == "?") ? self::$_paramType[$param[0]{1}] : self::$_paramType[$param[0]{0}];
+        //参数名称
+        $data['name'] = $param[1];
+        //参数描述
+        $data['describe'] = $param[2];
+        //设置参数数据
+        DocumentData::$documentData[DocumentData::$moduleNameKey]['method'][DocumentData::$methodName]['params'][] = $data;
+    }
 }
