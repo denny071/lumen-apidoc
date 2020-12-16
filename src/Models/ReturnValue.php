@@ -34,14 +34,21 @@ class ReturnValue
             }
 
             $returnInfo = explode("-", $returnInfo);
-            if (count($returnInfo) == 2) {
-                //设置名称
-                $data['name'] = $returnInfo[0];
-                //设置描述
-                $data['describe'] = $returnInfo[1];
-                //设置返回数据
-                $handler['return'][] = $data;
+            switch (count($returnInfo)) {
+                case 1:
+                    $handler['return'] = DocumentData::$documentData["define"][$returnInfo[0]];
+                    break;
+                case 2:
+                    //设置名称
+                    $data['name'] = $returnInfo[0];
+                    //设置描述
+                    $data['describe'] = $returnInfo[1];
+                    //设置返回数据
+                    $handler['return'][] = $data;
+                    break;
             }
+
+
         }
 
 

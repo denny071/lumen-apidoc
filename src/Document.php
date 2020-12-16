@@ -29,7 +29,7 @@ class Document
         //根据请求类型判断文档数据
         $version = $_REQUEST['version']?? 1; ;
         foreach (DocumentData::$documentData as $key => $data) {
-            if ($data['version'] == $version) {
+            if ($key != "define" && $data['version'] == $version) {
                 $documentData[$key] = $data;
             }
         }

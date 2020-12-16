@@ -58,10 +58,11 @@ $(function(){
     // 清除缓存
     $("#clearCache").click(function () {
        $.get("{{route('apiClear')}}","",function (data) {
-           if(data.statusCode== 0) {
+
+           if(data.state== 0) {
                layer.msg('清除缓存成功', {
                    icon: 1,
-                   time: 2000 //2秒关闭（如果不配置，默认是3秒）
+                   time: 1000
                }, function(){
                    location.reload();
                });

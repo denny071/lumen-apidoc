@@ -67,6 +67,7 @@ class DocumentData
         'R' => 'ReturnValue',
         'M' => 'Message',
         'I' => 'InputData',
+        'F' => 'Define'
     ];
 
 
@@ -85,6 +86,7 @@ class DocumentData
         } else {
             // 解析文件
             $this->_analyseFile(base_path().DIRECTORY_SEPARATOR.config("apidoc.router_path"));
+
             //写入文件
             if($cacheEnable) {
                 file_put_contents($documentFile, json_encode(self::$documentData, JSON_UNESCAPED_UNICODE));
@@ -121,9 +123,11 @@ class DocumentData
         //获得单个路由路由新
         foreach ($content[1] as $route) {
             // 判断是否为列表
-            if(in_array($route[0], ["V","G","P","U","D"])){
+            if(in_array($route[0], ["V","G","P","U","D","F"])){
+
                 self::$methodMode = $route[0];
                 $param = explode("-", substr($route, 1));
+
             }else {
                 $param = explode(",", substr($route, 2, strlen($route) - 3));
             }
