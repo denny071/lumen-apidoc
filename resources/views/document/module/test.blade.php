@@ -78,8 +78,9 @@ $(function(){
         param_string : ""
 
     }
-    // GET方式
+
     @if($method['mode'] == "GET" )
+        // GET方式
         // 绑定输入框
         $("#{{$className}}-{{$methodName}}-test-form input").bind("keyup",function(){
             if($(this).attr("alt") == "2") {
@@ -126,21 +127,24 @@ $(function(){
 
         });
     @endif
-    // POST方式
+
     @if($method['mode'] == "POST" )
+        // POST
         // 绑定输入框
         $("#{{$className}}-{{$methodName}}-test-form input").bind("keyup",function(){
             if($(this).attr("alt") == "2") {
                 {{$className}}_{{$methodName}}_data['param'][$(this).attr("name")] = $(this).val();
+
                 Object.getOwnPropertyNames({{$className}}_{{$methodName}}_data['param']).forEach(function(key){
                     if({{$className}}_{{$methodName}}_data['param'][key]) {
+
                         {{$className}}_{{$methodName}}_data['url_string'] = "{{$method['http']}}".replace("{"+key+"}",{{$className}}_{{$methodName}}_data['param'][key])
                     }
                 })
                 if("{{$model}}" == "mock"){
                     {{$className}}_{{$methodName}}_data['url_string'] += "&model=mock";
                 }
-                $("#{{$className}}-{{$methodName}}-test-url").text({{$className}}_{{$methodName}}_data['url_string'] + {{$className}}_{{$methodName}}_data['param_string']);
+                $("#{{$className}}-{{$methodName}}-test-url").text({{$className}}_{{$methodName}}_data['url_string']);
             } else {
                 {{$className}}_{{$methodName}}_data['body'][$(this).attr("name")] = $(this).val();
                 {{$className}}_{{$methodName}}_data['param_string'] = Object.keys({{$className}}_{{$methodName}}_data['body'] || {})
